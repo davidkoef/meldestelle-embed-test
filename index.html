@@ -253,6 +253,28 @@
             text-decoration: underline;
         }
         
+        /* Build-Nummer Badge */
+        .build-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid #667eea;
+        }
+        
+        .build-badge .version {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8rem;
@@ -269,6 +291,11 @@
     </style>
 </head>
 <body>
+    <!-- Build-Nummer Badge -->
+    <div class="build-badge">
+        Build <span class="version">#002</span>
+    </div>
+    
     <div class="header">
         <h1>🐴 Meldestelle.net Embed Demo</h1>
         <p>Testen Sie die externe Einbindung von Turnierdaten</p>
@@ -280,7 +307,7 @@
             <div class="info-banner">
                 <h2>✅ Live-Demonstration</h2>
                 <p>Diese Seite läuft auf GitHub Pages - komplett unabhängig vom Meldestelle-System.</p>
-                <p>Die Daten werden live von <strong>dev.meldestelle.net</strong> geladen.</p>
+                <p>Die Daten werden live von <strong>meldestelle.net</strong> geladen.</p>
             </div>
             
             <!-- Feature Grid -->
@@ -316,11 +343,11 @@
             <div class="turnier-selector">
                 <div class="form-group">
                     <label for="turniernummer">Turniernummer:</label>
-                    <input type="number" id="turniernummer" value="1" min="1">
+                    <input type="number" id="turniernummer" value="52" min="1">
                 </div>
                 <div class="form-group">
                     <label for="startdatum">Start-Datum:</label>
-                    <input type="date" id="startdatum" value="2025-01-15">
+                    <input type="date" id="startdatum" value="2025-08-08">
                 </div>
                 <div class="form-group">
                     <label for="anzahltage">Anzahl Tage:</label>
@@ -358,7 +385,7 @@
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode()">📋 Kopieren</button>
                 <pre id="code-example">&lt;iframe 
-    src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=1&amp;datum=2025-01-15&amp;style=full" 
+    src="https://meldestelle.net/module/portal/embed/tagesansicht?turnier=52&amp;datum=2025-08-08&amp;style=full" 
     width="100%" 
     height="600" 
     frameborder="0"&gt;
@@ -424,7 +451,7 @@
                             <p>Lade Daten...</p>
                         </div>
                         <iframe 
-                            src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&datum=${datumString}&style=${style}"
+                            src="https://meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&datum=${datumString}&style=${style}"
                             onload="hideLoading(this)">
                         </iframe>
                     </div>
@@ -452,7 +479,7 @@
             const style = document.getElementById('style').value;
             
             const code = `&lt;iframe 
-    src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&amp;datum=${datum}&amp;style=${style}" 
+    src="https://meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&amp;datum=${datum}&amp;style=${style}" 
     width="100%" 
     height="600" 
     frameborder="0"&gt;
@@ -468,7 +495,7 @@
             const style = document.getElementById('style').value;
             
             const code = `<iframe 
-    src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&datum=${datum}&style=${style}" 
+    src="https://meldestelle.net/module/portal/embed/tagesansicht?turnier=${turnier}&datum=${datum}&style=${style}" 
     width="100%" 
     height="600" 
     frameborder="0">
