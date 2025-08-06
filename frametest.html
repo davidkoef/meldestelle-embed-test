@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iframe Test - Meldestelle Embed</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+        
+        .input-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .input-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .code-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .preview-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .preview-section.active {
+            display: block;
+        }
+        
+        .preview-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            min-height: 600px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .placeholder {
+            color: #999;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .examples {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .examples h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .example-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .example-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .example-code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-bottom: 10px;
+        }
+        
+        .use-example {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 iframe Test Tool</h1>
+            <p>Testen Sie Meldestelle Embed-Codes direkt in Ihrem Browser</p>
+            <div class="nav-links">
+                <a href="index.html">← Zurück zum Konfigurator</a>
+                <a href="https://github.com/DavidKoef/meldestelle-embed-test" target="_blank">GitHub Repository</a>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>📝 iframe Code eingeben</h2>
+            <textarea 
+                id="iframe-input" 
+                class="code-input" 
+                placeholder="Fügen Sie hier Ihren iframe Code ein...&#10;&#10;Beispiel:&#10;&lt;iframe src=&quot;https://meldestelle.net/module/portal/embed/tagesansicht?turnier=123&amp;datum=2025-07-25&quot; width=&quot;100%&quot; height=&quot;600&quot; frameborder=&quot;0&quot;&gt;&lt;/iframe&gt;"
+            ></textarea>
+            
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="renderIframe()">
+                    🔍 Vorschau anzeigen
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ Zurücksetzen
+                </button>
+                <button class="btn btn-success" onclick="copyCode()">
+                    📋 Code kopieren
+                </button>
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+            
+            <div class="examples">
+                <h3>📚 Beispiele zum Testen</h3>
+                
+                <div class="example-item">
+                    <h4>Tagesansicht - Standard</h4>
+                    <div class="example-code">&lt;iframe src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=56&amp;datum=2025-08-06" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;</div>
+                    <button class="btn btn-secondary use-example" onclick="useExample(0)">Beispiel verwenden</button>
+                </div>
+                
+                <div class="example-item">
+                    <h4>Live-Ansicht - Aktueller Bewerb</h4>
+                    <div class="example-code">&lt;iframe src="https://dev.meldestelle.net/module/portal/embed/liveansicht?turnier=56" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;</div>
+                    <button class="btn btn-secondary use-example" onclick="useExample(1)">Beispiel verwenden</button>
+                </div>
+                
+                <div class="example-item">
+                    <h4>Tagesansicht - Minimal Style</h4>
+                    <div class="example-code">&lt;iframe src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=56&amp;datum=2025-08-07&amp;style=minimal&amp;branding=0" width="100%" height="500" frameborder="0"&gt;&lt;/iframe&gt;</div>
+                    <button class="btn btn-secondary use-example" onclick="useExample(2)">Beispiel verwenden</button>
+                </div>
+                
+                <div class="example-item">
+                    <h4>Live-Ansicht - Mit Location Filter</h4>
+                    <div class="example-code">&lt;iframe src="https://dev.meldestelle.net/module/portal/embed/liveansicht?turnier=56&amp;location=1&amp;refresh=15" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;</div>
+                    <button class="btn btn-secondary use-example" onclick="useExample(3)">Beispiel verwenden</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="preview-section" class="preview-section">
+            <h2>👁️ Vorschau</h2>
+            <div id="iframe-container" class="iframe-container">
+                <div class="placeholder">Hier wird Ihr iframe angezeigt...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Beispiel-Codes
+        const examples = [
+            '<iframe src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=56&datum=2025-08-06" width="100%" height="600" frameborder="0"></iframe>',
+            '<iframe src="https://dev.meldestelle.net/module/portal/embed/liveansicht?turnier=56" width="100%" height="600" frameborder="0"></iframe>',
+            '<iframe src="https://dev.meldestelle.net/module/portal/embed/tagesansicht?turnier=56&datum=2025-08-07&style=minimal&branding=0" width="100%" height="500" frameborder="0"></iframe>',
+            '<iframe src="https://dev.meldestelle.net/module/portal/embed/liveansicht?turnier=56&location=1&refresh=15" width="100%" height="600" frameborder="0"></iframe>'
+        ];
+        
+        // Beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prüfe ob Code in URL-Parameter vorhanden
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                document.getElementById('iframe-input').value = decodeURIComponent(code);
+                renderIframe();
+            }
+        });
+        
+        function renderIframe() {
+            const input = document.getElementById('iframe-input').value.trim();
+            const container = document.getElementById('iframe-container');
+            const previewSection = document.getElementById('preview-section');
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            
+            // Reset messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            if (!input) {
+                showError('Bitte geben Sie einen iframe Code ein.');
+                return;
+            }
+            
+            // Validiere iframe Code
+            if (!input.toLowerCase().includes('<iframe') || !input.toLowerCase().includes('</iframe>')) {
+                showError('Der eingegebene Code scheint kein gültiger iframe Code zu sein.');
+                return;
+            }
+            
+            try {
+                // Erstelle temporäres Element zum Parsen
+                const temp = document.createElement('div');
+                temp.innerHTML = input;
+                
+                const iframe = temp.querySelector('iframe');
+                if (!iframe) {
+                    showError('Kein gültiges iframe Element gefunden.');
+                    return;
+                }
+                
+                // Extrahiere und setze iframe Attribute
+                const newIframe = document.createElement('iframe');
+                
+                // Kopiere alle Attribute
+                for (let attr of iframe.attributes) {
+                    newIframe.setAttribute(attr.name, attr.value);
+                }
+                
+                // Setze Mindesthöhe wenn nicht vorhanden
+                if (!newIframe.getAttribute('height')) {
+                    newIframe.style.height = '600px';
+                }
+                
+                // Ersetze Container-Inhalt
+                container.innerHTML = '';
+                container.appendChild(newIframe);
+                
+                // Zeige Preview
+                previewSection.classList.add('active');
+                
+                // Zeige Erfolg
+                showSuccess('iframe wurde erfolgreich geladen!');
+                
+                // Scrolle zur Vorschau
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } catch (error) {
+                showError('Fehler beim Verarbeiten des iframe Codes: ' + error.message);
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('iframe-input').value = '';
+            document.getElementById('iframe-container').innerHTML = '<div class="placeholder">Hier wird Ihr iframe angezeigt...</div>';
+            document.getElementById('preview-section').classList.remove('active');
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function copyCode() {
+            const input = document.getElementById('iframe-input');
+            if (!input.value.trim()) {
+                showError('Nichts zum Kopieren vorhanden.');
+                return;
+            }
+            
+            input.select();
+            input.setSelectionRange(0, 99999); // Für mobile Geräte
+            
+            try {
+                document.execCommand('copy');
+                showSuccess('Code wurde in die Zwischenablage kopiert!');
+            } catch (err) {
+                // Fallback für moderne Browser
+                navigator.clipboard.writeText(input.value).then(() => {
+                    showSuccess('Code wurde in die Zwischenablage kopiert!');
+                }).catch(() => {
+                    showError('Kopieren fehlgeschlagen. Bitte manuell kopieren.');
+                });
+            }
+        }
+        
+        function useExample(index) {
+            document.getElementById('iframe-input').value = examples[index];
+            renderIframe();
+        }
+        
+        function showError(message) {
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = '❌ ' + message;
+            errorMsg.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successMsg = document.getElementById('success-message');
+            successMsg.textContent = '✅ ' + message;
+            successMsg.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            
+            // Auto-hide nach 3 Sekunden
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Enter-Taste zum Rendern
+        document.getElementById('iframe-input').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                renderIframe();
+            }
+        });
+        
+        // Automatische Höhenanpassung des Textareas
+        const textarea = document.getElementById('iframe-input');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 400) + 'px';
+        });
+    </script>
+</body>
+</html>
