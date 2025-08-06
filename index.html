@@ -344,9 +344,9 @@
     <div class="container">
         <div class="header">
             <h1>🏇 Meldestelle Embed Test System</h1>
-            <p>Testsystem für die Integration der Meldestelle Tagesansicht in externe Webseiten</p>
+            <p>Testsystem für die Integration der Meldestelle Tagesansicht und Live-Ansicht in externe Webseiten</p>
             <div class="build-info">
-                <strong>Build:</strong> #004 | 
+                <strong>Build:</strong> #005 | 
                 <strong>Stand:</strong> <span id="current-date"></span> | 
                 <strong>Status:</strong> <span class="status-indicator status-live"></span>Online
             </div>
@@ -410,13 +410,47 @@
 
         <div class="embed-container">
             <div class="tab-navigation">
-                <button class="tab-btn active" onclick="switchTab('preview')">👁️ Vorschau</button>
+                <button class="tab-btn active" onclick="switchTab('preview')">👁️ Tagesansicht</button>
+                <button class="tab-btn" onclick="switchTab('live')">🔴 Live-Ansicht</button>
                 <button class="tab-btn" onclick="switchTab('code')">📝 Embed-Code</button>
                 <button class="tab-btn" onclick="switchTab('info')">ℹ️ Information</button>
             </div>
             
             <div id="preview-tab" class="tab-content active">
                 <div id="embed-frames"></div>
+            </div>
+            
+            <div id="live-tab" class="tab-content">
+                <h3>🔴 Live-Ansicht Embed</h3>
+                <p style="margin-bottom: 20px;">Die Live-Ansicht zeigt automatisch den aktuell laufenden Bewerb mit Auto-Refresh alle 30 Sekunden.</p>
+                
+                <div class="config-grid" style="margin-bottom: 20px;">
+                    <div class="config-item">
+                        <label for="live-turnier">Turniernummer</label>
+                        <input type="number" id="live-turnier" value="56" min="1">
+                    </div>
+                    <div class="config-item">
+                        <label for="live-location">Austragungsort (Optional)</label>
+                        <input type="number" id="live-location" placeholder="Leer für alle Orte" min="1">
+                    </div>
+                    <div class="config-item">
+                        <label for="live-refresh">Auto-Refresh (Sekunden)</label>
+                        <input type="number" id="live-refresh" value="30" min="0" max="300">
+                    </div>
+                    <div class="config-item">
+                        <label for="live-style">Anzeigestil</label>
+                        <select id="live-style">
+                            <option value="full" selected>Vollständig</option>
+                            <option value="minimal">Minimal</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateLiveEmbed()">🔄 Live-Ansicht aktualisieren</button>
+                
+                <div id="live-embed-container" style="margin-top: 20px;">
+                    <!-- Live iframe wird hier eingefügt -->
+                </div>
             </div>
             
             <div id="code-tab" class="tab-content">
@@ -451,14 +485,16 @@
                     </ul>
                     
                     <h3 style="margin-top: 20px;">🔴 Live-Ansicht Feature</h3>
-                    <p>Testen Sie auch die neue Live-Ansicht für Turnierergebnisse:</p>
+                    <p>NEU: Live-Ansicht als einbettbares iframe verfügbar!</p>
                     <ul style="margin-left: 20px; color: #4a5568;">
-                        <li><a href="https://dev.meldestelle.net/portal/listen?mode=live&turniernummer=1" target="_blank" style="color: #667eea;">🔴 Live-Ansicht Turnier 1</a></li>
-                        <li><a href="https://dev.meldestelle.net/portal/listen?mode=live&turniernummer=2" target="_blank" style="color: #667eea;">🔴 Live-Ansicht Turnier 2</a></li>
-                        <li><a href="https://meldestelle.net/portal/listen?mode=live&turniernummer=52" target="_blank" style="color: #667eea;">🔴 Live-Ansicht Produktion</a></li>
+                        <li><strong>Automatische Bewerb-Erkennung:</strong> Zeigt immer den aktuell relevantesten Bewerb</li>
+                        <li><strong>Auto-Refresh:</strong> Standardmäßig alle 30 Sekunden (konfigurierbar)</li>
+                        <li><strong>Location-Filter:</strong> Für Turniere mit mehreren Austragungsorten</li>
+                        <li><strong>Responsive Design:</strong> Optimiert für Mobile und Desktop</li>
+                        <li><strong>Status-Anzeige:</strong> Live 🟢, Startet bald 🟡, Beendet 🔴</li>
                     </ul>
                     <p style="margin-top: 10px; font-size: 0.9rem; color: #718096;">
-                        Die Live-Ansicht zeigt automatisch den aktuell laufenden Bewerb mit Auto-Refresh alle 15 Sekunden.
+                        Wechseln Sie zum "🔴 Live-Ansicht" Tab, um die Embed-Funktion zu testen.
                     </p>
                 </div>
             </div>
@@ -640,6 +676,11 @@ Branding: ${config.branding === '1' ? 'Ja' : 'Nein'}`;
             // Aktiviere gewählten Tab
             event.target.classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Bei Live-Tab initial generieren
+            if (tabName === 'live' && !document.getElementById('live-iframe')) {
+                generateLiveEmbed();
+            }
         }
 
         // Kopiere Code
@@ -695,6 +736,67 @@ Branding: ${config.branding === '1' ? 'Ja' : 'Nein'}`;
             
             updateSourceButtons();
             generateEmbeds();
+        }
+
+        // Live-Embed generieren
+        function generateLiveEmbed() {
+            const turnier = document.getElementById('live-turnier').value;
+            const location = document.getElementById('live-location').value;
+            const refresh = document.getElementById('live-refresh').value;
+            const style = document.getElementById('live-style').value;
+            const baseUrl = urls[config.source];
+            
+            let iframeSrc = `${baseUrl}/module/portal/embed/liveansicht?turnier=${turnier}`;
+            
+            if (location) {
+                iframeSrc += `&location=${location}`;
+            }
+            if (refresh !== '30') {
+                iframeSrc += `&refresh=${refresh}`;
+            }
+            if (style !== 'full') {
+                iframeSrc += `&style=${style}`;
+            }
+            
+            const container = document.getElementById('live-embed-container');
+            container.innerHTML = `
+                <div class="iframe-wrapper" style="height: ${style === 'minimal' ? '400px' : '600px'};">
+                    <iframe id="live-iframe" 
+                            src="${iframeSrc}" 
+                            title="Live-Ansicht"
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0">
+                    </iframe>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <h4 style="margin-top: 0;">Embed-Code für diese Live-Ansicht:</h4>
+                    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 5px; overflow-x: auto;">
+&lt;iframe 
+    src="${iframeSrc}"
+    width="100%" 
+    height="${style === 'minimal' ? '400' : '600'}" 
+    frameborder="0"
+    title="Meldestelle Live-Ansicht"&gt;
+&lt;/iframe&gt;</pre>
+                    <button class="btn btn-secondary" onclick="copyLiveCode()">📋 Code kopieren</button>
+                </div>
+            `;
+        }
+        
+        // Live-Code kopieren
+        function copyLiveCode() {
+            const codeBlock = event.target.previousElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Kopiert!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
         }
 
         // Tastenkombinationen
